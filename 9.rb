@@ -34,8 +34,7 @@
 #
 class City
   attr_reader :connections, :name, :connection_distances
-  def initialize(name)
-    @name = name
+  def initialize
     @connections = []
     @connection_distances = []
   end
@@ -55,8 +54,8 @@ route_distances = []
 # Import
 ARGF.each do |line|
   matches = line.match(/([A-Za-z]+) to ([A-Za-z]+) = ([0-9]+)/)
-  cities[matches[1]] = City.new(matches[1]) if cities[matches[1]].nil?
-  cities[matches[2]] = City.new(matches[2]) if cities[matches[2]].nil?
+  cities[matches[1]] = City.new if cities[matches[1]].nil?
+  cities[matches[2]] = City.new if cities[matches[2]].nil?
   cities[matches[1]].add_connection(cities[matches[2]], matches[3].to_i)
   cities[matches[2]].add_connection(cities[matches[1]], matches[3].to_i)
 end
@@ -65,17 +64,13 @@ end
 cities.to_a.permutation(cities.length) do |p|
   total_distance = 0
   from_city = p.shift.last
-  route.push(from_city.name)
   loop do
     to_city = p.shift.last
-    break if (distance = from_city.distance_to_city(to_city)).nil?
-    total_distance += distance
+    total_distance += from_city.distance_to_city(to_city)
     from_city = to_city
-    if p.length == 0
-      route_distances.push(total_distance)
-      break
-    end
+    break if p.length == 0
   end
+  route_distances.push(total_distance)
 end
 
 puts route_distances.min.to_s
