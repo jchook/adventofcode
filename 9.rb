@@ -52,6 +52,7 @@ end
 cities = {}
 route_distances = []
 
+# Import
 ARGF.each do |line|
   matches = line.match(/([A-Za-z]+) to ([A-Za-z]+) = ([0-9]+)/)
   cities[matches[1]] = City.new(matches[1]) if cities[matches[1]].nil?
@@ -60,22 +61,18 @@ ARGF.each do |line|
   cities[matches[2]].add_connection(cities[matches[1]], matches[3].to_i)
 end
 
-# come up with all possible combinations
-i = 0
+# Brute force
 cities.to_a.permutation(cities.length) do |p|
-  route = []
   total_distance = 0
   from_city = p.shift.last
   route.push(from_city.name)
   loop do
     to_city = p.shift.last
-    route.push(to_city.name)
     break if (distance = from_city.distance_to_city(to_city)).nil?
     total_distance += distance
     from_city = to_city
     if p.length == 0
       route_distances.push(total_distance)
-      puts route.join(' -> ') + ' = ' + total_distance.to_s
       break
     end
   end
