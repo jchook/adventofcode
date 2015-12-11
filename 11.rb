@@ -27,10 +27,11 @@
 # Santa's password expired again. What's the next one?
 # 
 # Your puzzle answer was hxcaabcc.
-# ALPHA = ('a'..'z').zip((0..25)).to_h
-# 
+#
+ALPHA = ('a'..'z').zip((0..25)).to_h
+ 
 class Array
-  def include_series?(ary)
+  def include_cons?(ary)
     for start in (0..(self.length - ary.length))
       return true if self.slice(start, ary.length) == ary
     end
@@ -39,19 +40,13 @@ class Array
 end
 
 def next_valid_password(password)
-  loop { break if valid?(password = skip_invalid_password(increment_password(password))) }
+  loop { break if valid?(password = skip_invalid_password(password.succ)) }
   password
 end
 
-def increment_password(password)
-  (password.to_i(36) + 1).to_s(36).gsub('0', 'a')
-end
-
-# This makes it super fast by skipping passwords with invalid letters
-#
 def skip_invalid_password(p)
   if i = p.index(/[iol]/)
-    p = p[0..i-1] + increment_password(p[i]) + ('a' * (p.length - i - 1))
+    p = p[0..i-1] + p[i].succ + ('a' * (p.length - i - 1))
   end
   p
 end
@@ -62,7 +57,7 @@ def rolling_diff(password)
 end
 
 def valid?(password)
-  (!password.match /[iol]/) && password.match(/(.)\1.*(.)\2/) && rolling_diff(password).include_series?([1,1])
+  password !~ /[iol]/ && password =~ /(.)\1.*(.)\2/ && rolling_diff(password).include_cons?([1,1])
 end
 
 puts next_valid_password('hxbxwxba')
