@@ -36,7 +36,7 @@ require 'json'
 
 def rsum(val)
   return 0 if val.respond_to?(:has_value?) && val.has_value?("red")
-  if val.respond_to?(:each) val.each.reduce(0) {|sum, v| sum + rsum(v)} : val.to_i
+  val.respond_to?(:each) val.each.reduce(0) {|sum, v| sum + rsum(v)} : val.to_i
 end
 
 puts rsum(JSON.parse(ARGF.read))
