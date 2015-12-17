@@ -34,19 +34,10 @@ ARGF.each do |line|
   ingredients.push Vector.[](*line.scan(/-?\d+/).to_a.map{|x| x.to_i })
 end
 
-# test scenario
-# (0..100).each do |i|
-#   (0..100-i).each do |j|
-#     p portions = [i,j]
-#     p ingredients.each_index.map{|x| ingredients[x] * portions[x] }.reduce(:+).to_a[0..-2].map{|x| x > 0 ? x : 0 }.reduce(:*)
-#   end
-# end
-
 (0..100).each do |i|
   (0..100-i).each do |j|
     (0..100-i-j).each do |k|
       portions = [i, j, k, 100 - i - j - k]
-      next if portions.reduce(:+) < 100
       sums = ingredients.each_index.map{|x| ingredients[x] * portions[x] }.reduce(:+).to_a
       next if sums[-1] != 500 # part 2
       max = [max, sums[0..-2].map{|x| x > 0 ? x : 0 }.reduce(:*)].max
@@ -54,11 +45,38 @@ end
   end
 end
 
-# x = 0
-# max = 0
-# [*0..ingredients.length-1].repeated_permutation(100).each do |p|
-#   x += 1
-#   max = [ingredients.each_index.map{|i| p.count(i) * ingredients[i] }.reduce(:+).to_a.reduce(:*), max].max
-# end
-
 p max
+
+# Hardcoding those nested loops is not exactly satisfying.
+# Let's generalize it...
+#
+# class Array
+# 
+#   def stars_and_bars(balls, &block)
+#     @stars_and_bars_block = block
+#     stars_and_bars_r(balls, [])
+#   end
+# 
+#   private
+# 
+#   def stars_and_bars_r(balls, so_far=[])
+#     if so_far.length == length - 1
+#       @stars_and_bars_block.call so_far + [balls - so_far.reduce(:+)]
+#     else
+#       (0..balls - (so_far.reduce(:+) || 0)).each do |i|
+#         stars_and_bars_r(balls, so_far + [i])
+#       end
+#     end
+#   end
+# 
+# end
+# 
+# max = 0
+# 
+# ingredients.stars_and_bars(100) do |portions|
+#   sums = ingredients.each_index.map{|x| ingredients[x] * portions[x] }.reduce(:+).to_a
+#   next if sums[-1] != 500 # part 2
+#   max = [max, sums[0..-2].map{|x| x > 0 ? x : 0 }.reduce(:*)].max
+# end
+# 
+# p max 
