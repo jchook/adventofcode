@@ -1,0 +1,42 @@
+│00:49:02       ski | `(subSums !! (a - 1))' could be simplified to just `subSum (a - 1) b'     │+coot__
+│                   | (assuming `a - 1' is not negative, in which case you'd get an error       │+corlock_
+│                   | anyway with `!!')                                                         │+cyjiao
+│00:49:06       ski | hm, ok                                                                    │+exferenceBot
+│00:49:15       ski | well, that doesn't work                                                   │+feepo
+│00:49:44       ski | each new invocation of `subSum' will make a new infinite list `subSums',  │+fingerzam
+│                   | so you'll get no sharing of results, no "dynamic programming"             │+higherorder_
+│00:49:56   +jchook | ok b/c b is a var?                                                        │+hpd[m]1
+│00:49:59       --> | leothrix (~leothrix@elastic/staff/leothrix) has joined #haskell           │+isacl_
+│00:50:13       ski | becaue you call `subSum' in `subSums'                                     │+jackboy[m]
+│00:50:24   +jchook | ah                                                                        │+jchook
+│00:50:26       ski | instead do :                                                              │+jdhorwitz
+│00:50:34       ski |   subSum a b = subSum_b a                                                 │+koankeeper
+│00:50:36       ski |     where                                                                 │+Levy[m]
+│00:50:42       ski |     subSum_b a                                                            │+luqui
+│00:50:45       <-- | Arcaelyx (~Arcaelyx@2604:2000:f146:7c00:ad2e:3967:3082:5673) has quit     │+mbeidler
+│                   | (Ping timeout: 268 seconds)                                               │+newhoggy_
+│00:50:49       ski |       | a == 0 = 0                                                        │+nickoralias
+│00:50:54       ski |       ...                                                                 │+noipmusp
+│00:51:04   +jchook | ahhhhh, ok that's very helpful                                            │+paf31_
+│00:51:09       ski | and then call `subSum_b' recursively, not `subSum'                        │+Peter_Storm__
+│00:51:18       <-- | conal (~conal@64.71.133.70) has quit (Quit: Computer has gone to sleep.)  │+ranberry__
+│00:51:43       ski | also, define `subSums' not inside a `where' attached to `subSum_b', but   │+shiona_
+│                   | inside the `where' attached to `subSum', so that `subSums' will be a      │+simony_
+│                   | sibling of `subSum_b'                                                     │+sppky
+│00:52:14       ski | that way, the initial call to `subSum' will make `subSums' an infinite    │+thi__
+│                   | list, which will then be shared across all calls to `subSum_b'            │+verement_
+│00:52:30   +jchook | yes that's precisely what I was going for                                 │ [df]
+│00:52:34   +jchook | that helps a ton                                                          │ [exa]
+│00:52:36       ski | (new calls to the outer `subSum' will still allocate a new `subSums', of  │ [Leary]
+│                   | course)                                                                   │ ^W
+│00:53:16       ski | (of course, you could perhaps rename `subSum_b' to something else, if you │ _6a68
+│                   | prefer. i was just pointing out that it's basically `subSum', with a      │ __4matter
+│                   | particular value of `b' "fixed")                                          │ __name__
+│00:53:42       --> | conal (~conal@64.71.133.70) has joined #haskell                           │ _ceb
+│00:53:46       ski | btw, instead of doing `a == 0' in a guard, you could match like           │ _deepfire
+│00:53:55       ski |   subSum_b 0 = 0                                                          │ _dga
+│00:53:58       ski |   subSum_b a                                                              │ _flow_
+│00:54:02       ski |     | ...                                                                 │ `slikts
+│00:54:02       <-- | dd7 (~user@cpe-74-129-233-245.kya.res.rr.com) has quit (Ping timeout: 250 │ a3Dman_
+│                   | seconds)                                                                  │ a_
+│00:54:32   +jchook | oh nice, and combine guard with polymorphism                              │ aarvar
